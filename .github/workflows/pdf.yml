@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Compile without solutions
+        uses: dante-ev/latex-action@v0.2.0
+        with:
+          root_file: cs256-summer18-resit.tex
+          args: -bibtex -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -latexoption=-shell-escape -latexoption=-synctex=1
+
+      - name: Upload build artifact (without solutions)
+        uses: actions/upload-artifact@v2
+        with:
+          name: cs256-summer18-resit.pdf
+          path: cs256-summer18-resit.pdf
+
+      - name: Compile with solutions
+        uses: dante-ev/latex-action@v0.2.0
+        with:
+          root_file: cs256-summer18-resit-solutions.tex
+          args: -bibtex -pdf -latexoption=-file-line-error -latexoption=-interaction=nonstopmode -latexoption=-shell-escape -latexoption=-synctex=1
+
+      - name: Upload build artifact (with solutions)
+        uses: actions/upload-artifact@v2
+        with:
+          name: cs256-summer18-resit-solutions.pdf
+          path: cs256-summer18-resit-solutions.pdf

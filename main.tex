@@ -1,0 +1,301 @@
+%-----------------------------------------------------------
+% LaTeX template for University of Warwick exams
+%-----------------------------------------------------------
+
+\usepackage{amsmath}
+
+% configure the heading 
+\ModuleCode{CS2560}
+\ModuleName{Functional Programming}
+\ExamPeriod{Summer 2018 (Resit)}
+\ExamsName{Second Year Examinations}
+\TimeAllowed{2 hours}
+\QuestionInstructions{Answer \textbf{FIVE} questions in total. These must be \textbf{Question 1}, any \textbf{TWO} questions from Section~A, and any \textbf{TWO} questions from Section~B.}
+\OtherInstructions{Read carefully the instructions on the answer book and make sure that the particulars required are entered on \textbf{each} answer book. \\
+
+Calculators are not allowed.\\
+
+The following Haskell functions are set as exercises in this exam either by providing definitions for you to use or having you prepare your own: \texttt{sum}, \texttt{product}, \texttt{and}, \texttt{init}, \texttt{foldr}, \texttt{all}, \texttt{filter}, \texttt{unzip}, and \texttt{fix}. Thus the implementations of these functions as available in the Standard Prelude must \textbf{NOT} by used in this exam.}
+
+\NoBreakAfterQuestions
+
+\begin{document}
+	\MakeHeading
+	
+	\begin{questions}
+		\question Answer each of the two parts of this question in about 100 words.
+		\begin{parts}
+			\part[10] Compare how computation is performed in \emph{functional} programming languages with how computation is performed in \emph{imperative} programming languages. \droppoints
+			\begin{solution}
+				\emph{Bookwork. Any sensible answer is permitted. One possible answer is:} Imperative programming is based on the mutation of state. Functional programming is based on the reduction of expressions. The former more closely resembles how computers work while the latter more closely resembles mathematics. Some problems are easier to solve using imperative programming while others are easier to solve using functional programming.
+			\end{solution}
+			\part[10] Compare types in Haskell with types in Java. \droppoints
+			\begin{solution}
+				\emph{Bookwork. Any sensible answer is permitted. One possible answer is:} Types in Java are mostly used to determine the structure of values (for storage purposes) and each variable is given a type. The Java compiler checks whether arguments to methods are of the type that is expected. Subtyping is supported and there are implicit casts. In Haskell, every expression (including functions) is typed (assuming that the expression can be typed, otherwise it is rejected by the compiler). That is, types are mainly used to validate that a program makes sense. Types can be inferred automatically. Functions are curried (they take one argument at a time) which allows for partial function application and this is also reflected in function types.
+			\end{solution} 
+		\end{parts}
+	\section{Answer \textbf{TWO} questions}
+	The theme of Section A is functional programming using first-order function definitions. 
+	\question Give a first-order definition for each of the following Haskell functions.
+	\begin{parts}
+		\part[6] \texttt{sum~::~[Int] -> Int} which calculates the sum of all the integers in a given, finite list. For example, \texttt{sum [4,8,15]} evaluates to \texttt{27}. \droppoints
+		\begin{solution} \emph{Bookwork.}
+		\begin{verbatim}
+		sum :: [Int] -> Int
+		sum []     = 0
+		sum (x:xs) = x + sum xs
+		\end{verbatim}
+		\end{solution}
+	
+		\part[6] \texttt{vowels~::~[Char] -> Int} which calculates the number of the vowels (\texttt{a}, \texttt{e}, \texttt{i}, \texttt{o}, and \texttt{u}) in any given finite list of lower-case characters. For example, \texttt{vowels "scooby is dead"} evaluates to \texttt{5}. \droppoints 
+		
+		\begin{solution} \emph{Application.}
+		\begin{verbatim}
+		vowels [] = 0 
+		vowels (x:xs) 
+		  | x `elem` "aeiou" = 1 + vowels xs 
+		  | otherwise        = vowels xs
+		\end{verbatim}
+		\end{solution}
+		
+		\part[8] \texttt{octal~::~Int -> [Char]} which converts a decimal numeral into an octal equivalent. For example, \texttt{octal 42} evaluates to \texttt{"52"}. \emph{Hint:} you can use the \texttt{show} function to convert an integer to a string representation of its decimal value. \droppoints
+		\begin{solution} \emph{Application.}
+		\begin{verbatim}
+		octal :: Int -> [Char]
+		octal n | n < 8     = show n 
+		        | otherwise = octal (div n 8) ++ 
+		                      octal (mod n 8)
+		\end{verbatim}
+		\end{solution}
+	\end{parts}
+
+	Note that each of the three functions in Question 2 can be defined without reference to the other two.
+
+	%%% Q3
+
+	\question This question is about how to model \emph{polymorphic finite binary trees} in Haskell using first-order function definitions. Using the \texttt{data} declaration
+	\begin{center}
+		\texttt{data Tree a = Leaf | Node (Tree a) a (Tree a)}
+	\end{center}
+	we can for example define
+	\begin{verbatim}
+	test :: Tree Char 
+	test = Node Leaf 'D' (Node (Node Leaf 'C' Leaf) 'S' Leaf)
+	\end{verbatim}
+	Define each of the following functions.
+	\begin{parts}
+		\part[6] A function \texttt{depth~::~Tree a -> Int} which calculates the depth of a given tree. For example, \texttt{depth Leaf} evaluates to \texttt{0} and \texttt{depth test} evaluates \linebreak to \texttt{3}. \droppoints 
+		\begin{solution} \emph{Application.}
+		\begin{verbatim}
+		depth Leaf         = 0
+		depth (Node l _ r) = 1 + max (depth l) (depth r)
+		\end{verbatim}
+		\end{solution}
+		\part[7] A function \texttt{flatten~::~Tree a -> [a]} which performs an in-order traversal of the tree and returns a list of the elements in it. For example, \texttt{flatten test} evaluates to \texttt{['D', 'C', 'S']}. \droppoints 
+		\begin{solution} \emph{Application.}
+			\begin{verbatim}
+			flatten Leaf         = []
+			flatten (Node l x r) = flatten l ++ [x] ++ flatten r
+			\end{verbatim}
+		\end{solution}
+		\part[7] A function \texttt{rev~::~Tree a -> Tree a} which reverses the elements of a given tree. For example, \texttt{rev test} evaluates to \texttt{Node (Node Leaf 'S' \linebreak (Node Leaf 'C' Leaf)) 'D' Leaf}. \droppoints 
+		\begin{solution} \emph{Application.}
+			\begin{verbatim}
+			rev Leaf         = []
+			rev (Node l x r) = Node (rev r) x (rev l)
+			\end{verbatim}
+		\end{solution}
+	\end{parts}
+	
+	%%% Q4
+	
+	\question Define each of the following functions in Haskell using a first-order function definition and an \textbf{iterative} (also known as \textbf{accumulative}) approach.
+	
+	\begin{parts}
+		\part[6] \texttt{product~::~[Int] -> Int} calculates the product of the integers in any given finite list. For example, \texttt{product [2,6,3]} evaluates to \texttt{36}. \droppoints 
+		\begin{solution}
+			\emph{Application}. It would be sufficient to just define the \texttt{go} function below without showing its use in \texttt{product'}. An implementation using \texttt{foldl} would also be acceptable.
+			\begin{verbatim}
+			product []     = 1
+			product (x:xs) = x * product xs
+			
+			product' = go 1
+			  where 
+			    go n []     = n
+			    go n (x:xs) = go (n*x) xs
+			\end{verbatim}
+		\end{solution}
+		\part[6] \texttt{and~::~[Bool] -> Bool} returns \texttt{True} if and only if all the elements of the finite list that is given as argument are \texttt{True}. For example, \texttt{and [True, True, True]} evaluates to \texttt{True} and \texttt{and [True, False, True]} evaluates to \linebreak \texttt{False}. \droppoints 
+		\begin{solution}
+			\emph{Application}. It would be sufficient to just define the \texttt{go} function below without showing its use in \texttt{and'}. An implementation using \texttt{foldl} would also be acceptable.
+			\begin{verbatim}
+			and []     = True
+			and (x:xs) = x && and xs
+			
+			and'  = go True
+			  where 
+			    go b []     = b
+			    go b (x:xs) = go (b && x) xs 
+			\end{verbatim}
+		\end{solution}
+		\part[8] \texttt{init~::~[a] -> [a]} is a function which, for the empty list \texttt{[]}, returns a suitable error message and, for a non-empty list, returns all elements of the list except for the last. For example, \texttt{init "RETTIWT"} evaluates to \texttt{"RETTIW"}. \droppoints 
+		\begin{solution}
+			\emph{Application}. It would be sufficient to just define the \texttt{go} function below without showing its use in \texttt{init'}. An implementation using \texttt{foldl} would also be acceptable.
+			\begin{verbatim}
+			init []     = error "empty list"
+			init [x]    = []
+			init (x:xs) = x : init xs
+			
+			init'  = go []
+			  where 
+			    go b []     = error "empty list"
+			    go b [x]    = b
+			    go b (x:xs) = go (b ++ [x]) xs 
+			\end{verbatim}
+		\end{solution}
+	\end{parts}
+
+	\section{Answer \textbf{TWO} questions}
+	
+	The theme of Section B is functional programming using higher-order function definitions. 
+	
+	\question
+	\begin{parts}
+		\part[6] A \emph{do-while loop} is an iterative construct which, from a given initial state, repeatedly applies a given function while a given predicate holds. Using the type
+		\begin{center}
+			\texttt{dowhile~::~(a -> a) -> (a -> Bool) -> a -> a}
+		\end{center}  
+		give a higher-order definition in Haskell of the function \texttt{dowhile}. That is, \texttt{dowhile f p s} repeatedly applies a function \texttt{f} starting from an initial state \texttt{s} and continues while \texttt{p} holds. For example, \texttt{dowhile (+1) (<4) 42} evaluates to \texttt{43} and \texttt{dowhile (+1) (<4) 0} evaluates to \texttt{4}. \droppoints
+		\begin{solution} \emph{Application.}
+		\begin{verbatim}
+		dowhile f p s = if p s' then dowhile f p s' else s'
+		                where s' = f s
+		\end{verbatim}
+		\end{solution}
+	\part[7] Define a function 
+	\begin{center}
+		\texttt{wsum~::~[Int] -> Int}
+	\end{center}
+	in terms of \texttt{dowhile} so that \texttt{wsum ns} computes the sum of the integers in \texttt{ns}. You may assume that \texttt{ns} is never the empty list. For example, \texttt{wsum [4,8,15]} evaluates to \texttt{27}. \droppoints 
+	\begin{solution} \emph{Application.}
+	\begin{verbatim}
+	wsum :: [Int] -> Int 
+	wsum xs = fst (dowhile 
+	                 (\(n, (y:ys)) -> (n+y, ys)) 
+	                 (not . null . snd) 
+	                 (0, xs))
+	\end{verbatim}
+	\end{solution}
+	\part[7] Define a function
+	\begin{center}
+		\texttt{whiledo~::~(a -> Bool) -> (a -> a) -> a -> a}
+	\end{center}
+	in terms of \texttt{dowhile} so that \texttt{whiledo} implements a \emph{while do loop}. That is, an iterative construct which, while a predicate holds, applies some function starting from the initial state. For example, \texttt{whiledo (<4) (+1) 42} evaluates to \texttt{42}. \droppoints 
+	\begin{solution} \emph{Application.}
+	\begin{verbatim}
+	whiledo p f s = snd (dowhile 
+	                       (\(x,y) -> (f y, x)) 
+	                       (p . fst) 
+	                       (s,s))
+	\end{verbatim}
+	\end{solution}
+	\end{parts}
+
+	%%% Q6
+
+	\question This question is about defining and using \emph{folding from the right} in functional programming:
+	\begin{parts}
+	\part[5] Define the usual Haskell function
+	\begin{center}
+	\texttt{foldr~::~(a -> b -> b) -> b -> [a] -> b}
+	\end{center}
+	to model \emph{folding from the right}. \droppoints 
+	\begin{solution} \emph{Bookwork.}
+	\begin{verbatim}
+	foldr f z []     = z
+	foldr f z (x:xs) = f x (foldr f z xs)
+	\end{verbatim}
+	\end{solution}
+	\part[5] Using \texttt{foldr} define the Haskell function
+	\begin{center}
+		\texttt{all~::~(a -> Bool) -> [a] -> Bool}
+	\end{center}
+	which tests whether all elements of list satisfy a given predicate. For example, \texttt{all odd [1,2,3]} evaluates to \texttt{False} and \texttt{all odd [1,3]} evaluates to \texttt{True}. \droppoints 
+	\begin{solution} \emph{Application.}
+	\begin{verbatim}
+	all p = foldr (\x r -> p x && r) True
+	\end{verbatim}
+	\end{solution}
+	\part[5] Using \texttt{foldr} define the Haskell function
+	\begin{center}
+	\texttt{filter~::~(a -> Bool) -> [a] -> [a]}
+	\end{center}
+	to implement the usual filter function such that \emph{e.g.} \texttt{filter odd [1,2,3]} evaluates to \texttt{[2]}. \droppoints 
+	\begin{solution} \emph{Application.}
+	\begin{verbatim}
+	filter p = foldr (\x ys -> 
+	    if p x then x : ys else ys) [] 
+	\end{verbatim}
+	\end{solution}
+	\part[5] Using \texttt{foldr} define the Haskell function
+	\begin{center}
+		\texttt{unzip :: [(a,b)] -> ([a],[b])}
+	\end{center} 
+	to implement a function which separates elements from a list of pairs into a pair of lists. For example, \texttt{unzip [(4,True),(8,False)]} evaluates to \texttt{([4,8], [True, False])}. \droppoints 
+	\begin{solution}
+		\begin{verbatim}
+		unzip = foldr (\(x,y) (xs,ys) -> (x:xs,y:ys)) ([],[])
+		\end{verbatim}
+	\end{solution}
+	\end{parts}	 
+
+	%%% Q7
+
+	\question The theme of this question is the untyped $\lambda$-calculus with arithmetic operators and natural numbers. That is, the calculus of anonymous functions such as $\lambda x.(+)~1~x$ which form the logical foundation of programming.
+	\begin{parts}
+		\part[12] Show how to evaluate the following expression, one step at a time:
+		\begin{displaymath}
+		(*)~((\lambda n . (*)~n~2)~3)~((\lambda n.(+)~3~((-)~n~4)~6)
+		\end{displaymath} \droppoints 
+		\begin{solution} \emph{Application.} Redexes may be evaluated in any order. Below is a strict, left-most evaluation:
+		\begin{displaymath} 
+		\begin{array}{cl}
+		 & (*)~((\lambda n . (*)~n~2)~3)~((\lambda n.(+)~3~((-)~n~4)~6) \\
+		\underset{\beta}{\Rightarrow} & (*)~((*)~3~2))~((\lambda n.(+)~3~((-)~n~4)~6) \\
+		\underset{\beta}{\Rightarrow} & (*)~6~((\lambda n.(+)~3~((-)~n~4)~6) \\
+		\underset{\beta}{\Rightarrow} & (*)~6~((+)~3~((-)~6~4)) \\
+		\underset{\beta}{\Rightarrow} & (*)~6~((+)~3~2) \\
+		\underset{\beta}{\Rightarrow} & (*)~6~5 \\
+		\underset{\beta}{\Rightarrow} & 30
+		\end{array} 
+		\end{displaymath}
+		\end{solution}
+		\part[8] In $\lambda$-calculus, the so-called Y-combinator is defined as
+		\begin{displaymath}
+		\begin{array}{lcl}
+		Y & \equiv & \lambda f.(\lambda x.f~(x~x))~(\lambda x.f~(x~x))
+		\end{array}
+		\end{displaymath}
+		This cannot be translated to an equivalent expression in Haskell because it would not be well typed. However, it can be defined with the help of a recursive data type
+		\begin{verbatim}
+		data Mu a = Roll (Mu a -> a -> a)
+		
+		unroll :: Mu a -> Mu a -> a -> a 
+		unroll (Roll x) = x
+		\end{verbatim}
+		Complete the following definition for \texttt{fix}, which implements the Y-combinator in Haskell, by replacing the \texttt{???}: 
+		\begin{verbatim}
+		fix = \f -> (\x -> f ((??? x) x)) 
+		            (??? (\x -> f ((??? x) x)))
+		\end{verbatim}
+		\droppoints 
+		\begin{solution} \emph{Comprehension.}
+		\begin{verbatim}
+        fix = \f -> (\x -> f ((unroll x) x)) 
+                    (Roll (\x -> f ((unroll x) x)))
+		\end{verbatim}
+		\end{solution}
+	\end{parts}
+	 
+	\end{questions}
+\end{document}
